@@ -1,6 +1,33 @@
-# Build Folders (you can keep bin if you'd like, to store dlls and pdbs)
+build_artifacts/*
+build_output/*
+
+**/*.suo
+**/**/*.suo
+**/*.user
+**/**/*.user
+
 bin
 obj
+_ReSharper*
+*.dotCover
 
-# mstest test results
-TestResults
+*.csproj.user
+*.resharper.user
+*.ReSharper.user
+*.cache
+*~
+*.swp
+*.bak
+*.orig
+*.user
+
+src/packages/**/*
+docs/build/**/*
+
+.DS_Store
+
+TestResult.xml
+submit.xml
+src/tests/*
+tests/*
+SolutionVersion.cs
