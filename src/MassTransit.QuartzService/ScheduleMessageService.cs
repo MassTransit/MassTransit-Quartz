@@ -52,7 +52,8 @@ namespace MassTransit.QuartzService
         {
             _scheduler.Standby();
 
-            _bus.Dispose();
+            if(_bus != null)
+                _bus.Dispose();
 
             _scheduler.Shutdown();
 
