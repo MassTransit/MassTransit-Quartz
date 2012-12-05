@@ -12,6 +12,7 @@
 // specific language governing permissions and limitations under the License.
 namespace MassTransit.QuartzService
 {
+    using Log4NetIntegration.Logging;
     using Quartz;
     using Quartz.Impl;
     using Topshelf;
@@ -24,6 +25,7 @@ namespace MassTransit.QuartzService
         static int Main()
         {
             Log4NetLogWriterFactory.Use("log4net.config");
+            Log4NetLogger.Use();
 
             return (int)HostFactory.Run(x => x.Service(CreateService));
         }
