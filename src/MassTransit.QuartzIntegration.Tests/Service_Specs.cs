@@ -10,54 +10,61 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the 
 // specific language governing permissions and limitations under the License.
-namespace MassTransit.QuartzService
+namespace MassTransit.QuartzIntegration.Tests
 {
+    using System.Threading;
+    using Magnum.Extensions;
+    using NUnit.Framework;
     using Quartz;
-    using QuartzIntegration;
-    using Topshelf;
+    using Quartz.Impl;
+    using Scheduling;
 
 
-    public class ScheduleMessageService :
-        ServiceControl
+    [TestFixture]
+    public class Using_the_quartz_service
     {
-        readonly IScheduler _scheduler;
-        IServiceBus _bus;
-
-        public ScheduleMessageService(IScheduler scheduler)
+        [Test]
+        public void Should_startup_properly()
         {
-            _scheduler = scheduler;
+            _bus.SchedulePublish(5.Seconds().FromNow(), new A());
+
+            Thread.Sleep(8.Seconds());
         }
 
-        public bool Start(HostControl hostControl)
+
+        class A
         {
+        }
+
+
+        IScheduler _scheduler;
+        IServiceBus _bus;
+
+        [TestFixtureSetUp]
+        public void Setup_quartz_service()
+        {
+            ISchedulerFactory schedulerFactory = new StdSchedulerFactory();
+            _scheduler = schedulerFactory.GetScheduler();
+
             _bus = ServiceBusFactory.New(x =>
                 {
-                    // just support everything by default
-                    x.UseMsmq();
-                    x.UseRabbitMq();
-
-                    // move this to app.config
-                    x.ReceiveFrom("rabbitmq://localhost/scheduled_task_control");
-                    x.SetConcurrentConsumerLimit(1);
+                    x.ReceiveFrom("loopback://localhost/quartz");
 
                     x.Subscribe(s => s.Consumer(() => new ScheduleMessageConsumer(_scheduler)));
                 });
 
             _scheduler.Start();
-
-            return true;
         }
 
-        public bool Stop(HostControl hostControl)
+        [TestFixtureTearDown]
+        public void Teardown_quartz_service()
         {
-            _scheduler.Standby();
-
+            if (_scheduler != null)
+                _scheduler.Standby();
             if (_bus != null)
                 _bus.Dispose();
-
-            _scheduler.Shutdown();
-
-            return true;
+            if (_scheduler != null)
+                _scheduler.Shutdown();
         }
     }
 }

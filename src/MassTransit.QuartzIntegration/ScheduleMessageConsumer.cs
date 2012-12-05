@@ -14,6 +14,7 @@ namespace MassTransit.QuartzIntegration
 {
     using System.IO;
     using System.Text;
+    using Logging;
     using Quartz;
     using Scheduling;
 
@@ -21,6 +22,8 @@ namespace MassTransit.QuartzIntegration
     public class ScheduleMessageConsumer :
         Consumes<ScheduleMessage>.Context
     {
+        static readonly ILog _log = Logger.Get<ScheduleMessageConsumer>();
+
         readonly IScheduler _scheduler;
 
         public ScheduleMessageConsumer(IScheduler scheduler)
@@ -30,6 +33,10 @@ namespace MassTransit.QuartzIntegration
 
         public void Consume(IConsumeContext<ScheduleMessage> context)
         {
+            if (_log.IsDebugEnabled)
+                _log.DebugFormat("ScheduleMessage: {0} at {1}", context.Message.CorrelationId,
+                    context.Message.ScheduledTime);
+
             string body;
             using (var ms = new MemoryStream())
             {
@@ -43,7 +50,7 @@ namespace MassTransit.QuartzIntegration
                                              .WithIdentity(context.Message.CorrelationId.ToString("N"))
                                              .UsingJobData("body", body)
                                              .UsingJobData("sourceAddress", context.SourceAddress.ToString())
-                                             .UsingJobData("faultAddress", context.FaultAddress.ToString())
+                                             .UsingJobData("faultAddress", (context.FaultAddress ?? context.SourceAddress).ToString())
                                              .StoreDurably(true)
                                              .Build();
 
