@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MassTransit.QuartzIntegration", "MassTransit.Quartz\MassTransit.QuartzIntegration.csproj", "{2F7DB49B-B650-4B57-BB9D-5D1B913CCACC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MassTransit.QuartzIntegration", "MassTransit.QuartzIntegration\MassTransit.QuartzIntegration.csproj", "{2F7DB49B-B650-4B57-BB9D-5D1B913CCACC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{C9CDA928-0CFE-4861-BA77-2BBC79981109}"
 	ProjectSection(SolutionItems) = preProject
