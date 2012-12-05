@@ -1,6 +1,8 @@
-﻿namespace MassTransit.Quartz
+﻿namespace MassTransit.QuartzIntegration
 {
     using System;
+    using Contracts;
+
 
     public class ScheduledPublishCommand :
         IScheduledPublishCommand

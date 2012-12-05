@@ -1,8 +1,8 @@
-﻿using JobBuilder = Quartz.JobBuilder;
-using TriggerBuilder = Quartz.TriggerBuilder;
-
-namespace MassTransit.Quartz
+﻿namespace MassTransit.QuartzIntegration.Contracts
 {
+    using Quartz;
+
+
     public class CommandTaskScheduler :
         Consumes<IScheduledPublishCommand>.Context
     {
