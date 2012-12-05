@@ -54,10 +54,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Contracts\IScheduledPublishCommand.cs" />
     <Compile Include="PublishJob.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScheduledPublishCommand.cs" />
     <Compile Include="ScheduleMessageConsumer.cs" />
   </ItemGroup>
   <ItemGroup>
