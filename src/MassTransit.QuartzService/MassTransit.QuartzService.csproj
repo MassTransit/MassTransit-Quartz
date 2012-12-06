@@ -71,7 +71,9 @@
       <HintPath>..\packages\RabbitMQ.Client.2.8.7\lib\net30\RabbitMQ.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="Topshelf">
       <HintPath>..\packages\TopShelf.3.1.0\lib\net40-full\Topshelf.dll</HintPath>
@@ -81,6 +83,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\ConfigurationProviderExtensions.cs" />
+    <Compile Include="Configuration\ConnectionStringProvider.cs" />
+    <Compile Include="Configuration\FileConfigurationProvider.cs" />
+    <Compile Include="Configuration\IConfigurationProvider.cs" />
+    <Compile Include="Configuration\IConnectionProvider.cs" />
+    <Compile Include="Configuration\IConnectionStringProvider.cs" />
+    <Compile Include="Configuration\SqlConnectionProvider.cs" />
+    <Compile Include="MassTransitJobFactory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScheduleMessageService.cs" />

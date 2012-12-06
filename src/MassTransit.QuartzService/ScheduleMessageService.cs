@@ -12,7 +12,11 @@
 // specific language governing permissions and limitations under the License.
 namespace MassTransit.QuartzService
 {
+    using System;
+    using Configuration;
     using Quartz;
+    using Quartz.Impl;
+    using Quartz.Spi;
     using QuartzIntegration;
     using Topshelf;
 
@@ -20,28 +24,45 @@ namespace MassTransit.QuartzService
     public class ScheduleMessageService :
         ServiceControl
     {
+        readonly int _consumerLimit;
+        readonly Uri _controlQueueUri;
+        readonly IJobFactory _jobFactory;
         readonly IScheduler _scheduler;
         IServiceBus _bus;
 
-        public ScheduleMessageService(IScheduler scheduler)
+        public ScheduleMessageService(IConfigurationProvider configurationProvider, IJobFactory jobFactory)
         {
-            _scheduler = scheduler;
+            _jobFactory = jobFactory;
+
+            _controlQueueUri = configurationProvider.GetServiceBusUriFromSetting("ControlQueueName");
+            _consumerLimit = configurationProvider.GetSetting("ConsumerLimit", Math.Min(2, Environment.ProcessorCount));
+
+            _scheduler = CreateScheduler();
         }
 
         public bool Start(HostControl hostControl)
         {
-            _bus = ServiceBusFactory.New(x =>
-                {
-                    // just support everything by default
-                    x.UseMsmq();
-                    x.UseRabbitMq();
+            try
+            {
+                _bus = ServiceBusFactory.New(x =>
+                    {
+                        // just support everything by default
+                        x.UseMsmq();
+                        x.UseRabbitMq();
 
-                    // move this to app.config
-                    x.ReceiveFrom("rabbitmq://localhost/scheduled_task_control");
-                    x.SetConcurrentConsumerLimit(1);
+                        // move this to app.config
+                        x.ReceiveFrom(_controlQueueUri);
+                        x.SetConcurrentConsumerLimit(_consumerLimit);
 
-                    x.Subscribe(s => s.Consumer(() => new ScheduleMessageConsumer(_scheduler)));
-                });
+                        x.Subscribe(s => s.Consumer(() => new ScheduleMessageConsumer(_scheduler)));
+                    });
+            }
+            catch (Exception)
+            {
+                _scheduler.Shutdown();
+
+                throw;
+            }
 
             _scheduler.Start();
 
@@ -58,6 +79,16 @@ namespace MassTransit.QuartzService
             _scheduler.Shutdown();
 
             return true;
+        }
+
+        IScheduler CreateScheduler()
+        {
+            ISchedulerFactory schedulerFactory = new StdSchedulerFactory();
+
+            IScheduler scheduler = schedulerFactory.GetScheduler();
+            scheduler.JobFactory = _jobFactory;
+
+            return scheduler;
         }
     }
 }

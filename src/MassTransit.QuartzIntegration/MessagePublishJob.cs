@@ -12,6 +12,7 @@
 // specific language governing permissions and limitations under the License.
 namespace MassTransit.QuartzIntegration
 {
+    using System;
     using Quartz;
 
 
@@ -20,7 +21,13 @@ namespace MassTransit.QuartzIntegration
     {
         public void Execute(IJobExecutionContext context)
         {
-            // Logging here
+            try
+            {
+            }
+            catch (Exception ex)
+            {
+                throw new JobExecutionException("An unhandled exception occurred", ex);
+            }
         }
     }
 }

@@ -52,8 +52,6 @@ namespace MassTransit.QuartzIntegration
                                              .UsingJobData("body", body)
                                              .UsingJobData("sourceAddress", context.SourceAddress.ToString())
                                              .UsingJobData("faultAddress", (context.FaultAddress ?? context.SourceAddress).ToString())
-                                             .StoreDurably(true)
-                                             .RequestRecovery(true)
                                              .Build();
 
             ITrigger trigger = TriggerBuilder.Create()

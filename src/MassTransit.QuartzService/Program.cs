@@ -12,9 +12,8 @@
 // specific language governing permissions and limitations under the License.
 namespace MassTransit.QuartzService
 {
+    using Configuration;
     using Log4NetIntegration.Logging;
-    using Quartz;
-    using Quartz.Impl;
     using Topshelf;
     using Topshelf.Logging;
     using Topshelf.Runtime;
@@ -32,10 +31,10 @@ namespace MassTransit.QuartzService
 
         static ScheduleMessageService CreateService(HostSettings arg)
         {
-            ISchedulerFactory schedulerFactory = new StdSchedulerFactory();
-            IScheduler scheduler = schedulerFactory.GetScheduler();
+            var configurationProvider = new FileConfigurationProvider();
+            var jobFactory = new MassTransitJobFactory();
 
-            return new ScheduleMessageService(scheduler);
+            return new ScheduleMessageService(configurationProvider, jobFactory);
         }
     }
 }
