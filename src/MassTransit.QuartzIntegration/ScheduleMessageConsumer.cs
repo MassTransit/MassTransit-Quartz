@@ -20,7 +20,8 @@ namespace MassTransit.QuartzIntegration
 
 
     public class ScheduleMessageConsumer :
-        Consumes<ScheduleMessage>.Context
+        Consumes<ScheduleMessage>.Context,
+        Consumes<CancelScheduledMessage>.Context
     {
         static readonly ILog _log = Logger.Get<ScheduleMessageConsumer>();
 
@@ -45,13 +46,14 @@ namespace MassTransit.QuartzIntegration
                 body = Encoding.UTF8.GetString(ms.ToArray());
             }
 
-            IJobDetail jobDetail = JobBuilder.Create<PublishJob>()
+            IJobDetail jobDetail = JobBuilder.Create<MessagePublishJob>()
                                              .RequestRecovery(true)
                                              .WithIdentity(context.Message.CorrelationId.ToString("N"))
                                              .UsingJobData("body", body)
                                              .UsingJobData("sourceAddress", context.SourceAddress.ToString())
                                              .UsingJobData("faultAddress", (context.FaultAddress ?? context.SourceAddress).ToString())
                                              .StoreDurably(true)
+                                             .RequestRecovery(true)
                                              .Build();
 
             ITrigger trigger = TriggerBuilder.Create()
@@ -60,6 +62,11 @@ namespace MassTransit.QuartzIntegration
                                              .Build();
 
             _scheduler.ScheduleJob(jobDetail, trigger);
+        }
+
+        public void Consume(IConsumeContext<CancelScheduledMessage> message)
+        {
+            _scheduler.UnscheduleJob(new TriggerKey(message.Message.TokenId.ToString("N")));
         }
     }
 }

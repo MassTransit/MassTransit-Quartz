@@ -27,15 +27,42 @@ namespace MassTransit.Scheduling
 
             bus.Publish(scheduleMessage);
 
-            return new ScheduledMessageHandle<T>(scheduleMessage.CorrelationId, scheduleMessage.ScheduledTime,
-                scheduleMessage.Payload);
+            return new ScheduledMessageHandle<T>(scheduleMessage.CorrelationId, scheduleMessage.ScheduledTime, scheduleMessage.Payload);
+        }
+
+        public static ScheduledMessage<T> ScheduleSend<T>(this IEndpoint endpoint, DateTime scheduledTime, T message)
+            where T : class
+        {
+            var scheduleMessage = new ScheduleMessageCommand<T>(scheduledTime, message);
+
+            endpoint.Send(scheduleMessage);
+
+            return new ScheduledMessageHandle<T>(scheduleMessage.CorrelationId, scheduleMessage.ScheduledTime, scheduleMessage.Payload);
+        }
+
+        public static void CancelScheduledMessage(this IServiceBus bus, Guid tokenId)
+        {
+            var cancelScheduledMessage = new CancelScheduledMessageCommand(tokenId);
+
+            bus.Publish(cancelScheduledMessage);
+        }
+
+
+        class CancelScheduledMessageCommand :
+            CancelScheduledMessage
+        {
+            public CancelScheduledMessageCommand(Guid tokenId)
+            {
+                TokenId = tokenId;
+            }
+
+            public Guid TokenId { get; private set; }
         }
 
 
         class ScheduleMessageCommand<T> :
             ScheduleMessage<T>
             where T : class
-
         {
             public ScheduleMessageCommand(DateTime scheduledTime, T payload)
             {
