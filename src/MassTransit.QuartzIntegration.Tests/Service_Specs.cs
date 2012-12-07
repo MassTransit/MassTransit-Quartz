@@ -21,12 +21,12 @@ namespace MassTransit.QuartzIntegration.Tests
 
 
     [TestFixture]
-    public class Using_the_quartz_service
+    public class Using_the_quartz_service_with_json
     {
         [Test]
         public void Should_startup_properly()
         {
-            _bus.Endpoint.ScheduleSend(1.Seconds().FromUtcNow(), new A { Name = "Joe"});
+            _bus.Endpoint.ScheduleSend(1.Seconds().FromUtcNow(), new A {Name = "Joe"});
 
             Assert.IsTrue(_receivedA.WaitOne(Utils.Timeout), "Message A not handled");
             Assert.IsTrue(_receivedIA.WaitOne(Utils.Timeout), "Message IA not handled");
@@ -37,6 +37,7 @@ namespace MassTransit.QuartzIntegration.Tests
         {
             public string Name { get; set; }
         }
+
 
         class IA
         {
@@ -68,6 +69,149 @@ namespace MassTransit.QuartzIntegration.Tests
                             s.Handler<A>(msg => _receivedA.Set());
                             s.Handler<IA>(msg => _receivedIA.Set());
                             s.Consumer(() => new ScheduleMessageConsumer(_scheduler));
+                        });
+                });
+
+            _scheduler.JobFactory = new MassTransitJobFactory(_bus);
+            _scheduler.Start();
+        }
+
+        [TestFixtureTearDown]
+        public void Teardown_quartz_service()
+        {
+            if (_scheduler != null)
+                _scheduler.Standby();
+            if (_bus != null)
+                _bus.Dispose();
+            if (_scheduler != null)
+                _scheduler.Shutdown();
+        }
+    }
+
+
+    [TestFixture]
+    public class Using_the_quartz_service_with_xml
+    {
+        [Test]
+        public void Should_startup_properly()
+        {
+            _bus.Endpoint.ScheduleSend(1.Seconds().FromUtcNow(), new A {Name = "Joe"});
+
+            Assert.IsTrue(_receivedA.WaitOne(Utils.Timeout), "Message A not handled");
+            Assert.IsTrue(_receivedIA.WaitOne(Utils.Timeout), "Message IA not handled");
+        }
+
+
+        class A : IA
+        {
+            public string Name { get; set; }
+        }
+
+
+        class IA
+        {
+            string Id { get; set; }
+        }
+
+
+        IScheduler _scheduler;
+        IServiceBus _bus;
+        ManualResetEvent _receivedA;
+        ManualResetEvent _receivedIA;
+
+        [TestFixtureSetUp]
+        public void Setup_quartz_service()
+        {
+            ISchedulerFactory schedulerFactory = new StdSchedulerFactory();
+            _scheduler = schedulerFactory.GetScheduler();
+
+            _receivedA = new ManualResetEvent(false);
+            _receivedIA = new ManualResetEvent(false);
+
+            _bus = ServiceBusFactory.New(x =>
+                {
+                    x.ReceiveFrom("loopback://localhost/quartz");
+                    x.UseXmlSerializer();
+
+                    x.Subscribe(s =>
+                        {
+                            s.Handler<A>(msg => _receivedA.Set());
+                            s.Handler<IA>(msg => _receivedIA.Set());
+                            s.Consumer(() => new ScheduleMessageConsumer(_scheduler));
+                        });
+                });
+
+            _scheduler.JobFactory = new MassTransitJobFactory(_bus);
+            _scheduler.Start();
+        }
+
+        [TestFixtureTearDown]
+        public void Teardown_quartz_service()
+        {
+            if (_scheduler != null)
+                _scheduler.Standby();
+            if (_bus != null)
+                _bus.Dispose();
+            if (_scheduler != null)
+                _scheduler.Shutdown();
+        }
+    }
+
+
+    [TestFixture]
+    public class Using_the_quartz_service_and_cancelling
+    {
+        [Test]
+        public void Should_cancel_the_scheduled_message()
+        {
+            ScheduledMessage<A> scheduledMessage = _bus.Endpoint.ScheduleSend(8.Seconds().FromUtcNow(),
+                new A {Name = "Joe"});
+
+            _bus.CancelScheduledMessage(scheduledMessage);
+
+            Assert.IsFalse(_receivedA.WaitOne(Utils.Timeout), "Message A handled");
+            Assert.IsFalse(_receivedIA.WaitOne(1.Seconds()), "Message IA handled");
+        }
+
+
+        class A : IA
+        {
+            public string Name { get; set; }
+        }
+
+
+        class IA
+        {
+            string Id { get; set; }
+        }
+
+
+        IScheduler _scheduler;
+        IServiceBus _bus;
+        ManualResetEvent _receivedA;
+        ManualResetEvent _receivedIA;
+
+        [TestFixtureSetUp]
+        public void Setup_quartz_service()
+        {
+            ISchedulerFactory schedulerFactory = new StdSchedulerFactory();
+            _scheduler = schedulerFactory.GetScheduler();
+
+            _receivedA = new ManualResetEvent(false);
+            _receivedIA = new ManualResetEvent(false);
+
+            _bus = ServiceBusFactory.New(x =>
+                {
+                    x.ReceiveFrom("loopback://localhost/quartz");
+                    x.UseXmlSerializer();
+                    x.SetConcurrentConsumerLimit(1);
+
+                    x.Subscribe(s =>
+                        {
+                            s.Handler<A>(msg => _receivedA.Set());
+                            s.Handler<IA>(msg => _receivedIA.Set());
+                            s.Consumer(() => new ScheduleMessageConsumer(_scheduler));
+                            s.Consumer(() => new CancelScheduledMessageConsumer(_scheduler));
                         });
                 });
 

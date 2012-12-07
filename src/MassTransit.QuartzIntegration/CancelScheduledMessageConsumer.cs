@@ -32,10 +32,17 @@ namespace MassTransit.QuartzIntegration
         {
             bool unscheduledJob = _scheduler.UnscheduleJob(new TriggerKey(context.Message.TokenId.ToString("N")));
 
-            if (_log.IsDebugEnabled && unscheduledJob)
+            if (_log.IsDebugEnabled)
             {
-                _log.DebugFormat("CancelScheduledMessage: {0} at {1}", context.Message.TokenId,
-                    context.Message.Timestamp);
+                if (unscheduledJob)
+                {
+                    _log.DebugFormat("CancelScheduledMessage: {0} at {1}", context.Message.TokenId,
+                        context.Message.Timestamp);
+                }
+                else
+                {
+                    _log.DebugFormat("CancelScheduledMessage: no message found {0}", context.Message.TokenId);
+                }
             }
         }
     }
