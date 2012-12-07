@@ -57,14 +57,18 @@ namespace MassTransit.QuartzIntegration
             ITrigger trigger = TriggerBuilder.Create()
                                              .ForJob(jobDetail)
                                              .StartAt(context.Message.ScheduledTime)
+                                             .WithIdentity(new TriggerKey(context.Message.CorrelationId.ToString("N")))
                                              .Build();
 
             _scheduler.ScheduleJob(jobDetail, trigger);
         }
 
-        public void Consume(IConsumeContext<CancelScheduledMessage> message)
+        public void Consume(IConsumeContext<CancelScheduledMessage> context)
         {
-            _scheduler.UnscheduleJob(new TriggerKey(message.Message.TokenId.ToString("N")));
+            bool unscheduledJob = _scheduler.UnscheduleJob(new TriggerKey(context.Message.TokenId.ToString("N")));
+
+            if (_log.IsDebugEnabled && unscheduledJob)
+                _log.DebugFormat("UnscheduledMessage: {0} at {1}", context.Message.TokenId, context.Message.UnscheduleTime);
         }
     }
 }

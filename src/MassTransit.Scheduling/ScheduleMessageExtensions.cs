@@ -42,7 +42,7 @@ namespace MassTransit.Scheduling
 
         public static void CancelScheduledMessage(this IServiceBus bus, Guid tokenId)
         {
-            var cancelScheduledMessage = new CancelScheduledMessageCommand(tokenId);
+            var cancelScheduledMessage = new CancelScheduledMessageCommand(DateTime.UtcNow, tokenId);
 
             bus.Publish(cancelScheduledMessage);
         }
@@ -51,12 +51,14 @@ namespace MassTransit.Scheduling
         class CancelScheduledMessageCommand :
             CancelScheduledMessage
         {
-            public CancelScheduledMessageCommand(Guid tokenId)
+            public CancelScheduledMessageCommand(DateTime unscheduledTime, Guid tokenId)
             {
                 TokenId = tokenId;
+                UnscheduleTime = unscheduledTime;
             }
 
             public Guid TokenId { get; private set; }
+            public DateTime UnscheduleTime { get; private set; }
         }
 
 

@@ -18,5 +18,6 @@ namespace MassTransit.Scheduling
     public interface CancelScheduledMessage
     {
         Guid TokenId { get; }
+        DateTime UnscheduleTime { get; }
     }
 }
