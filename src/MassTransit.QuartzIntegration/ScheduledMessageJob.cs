@@ -13,17 +13,9 @@
 namespace MassTransit.QuartzIntegration
 {
     using System;
-    using System.Collections.Generic;
     using System.Globalization;
-    using System.IO;
-    using System.Linq;
-    using System.Xml.Linq;
     using Logging;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
     using Quartz;
-    using Serialization;
-    using Serialization.Custom;
 
 
     public class ScheduledMessageJob :
@@ -63,24 +55,6 @@ namespace MassTransit.QuartzIntegration
 
                 IEndpoint endpoint = _bus.GetEndpoint(destinationAddress);
 
-
-                if (string.Compare(ContentType, "application/vnd.masstransit+json", StringComparison.OrdinalIgnoreCase)
-                    == 0)
-                {
-                    Console.WriteLine(Body);
-                    TranslateJsonBody();
-                    Console.WriteLine(Body);
-                }
-                else if (string.Compare(ContentType, "application/vnd.masstransit+xml",
-                    StringComparison.OrdinalIgnoreCase) == 0)
-                {
-                    Console.WriteLine(Body);
-                    TranslateXmlBody();
-                    Console.WriteLine(Body);
-                }
-                else
-                    throw new InvalidOperationException("Only JSON and XML messages can be scheduled");
-
                 ISendContext messageContext = CreateMessageContext(sourceAddress, destinationAddress);
 
                 endpoint.OutboundTransport.Send(messageContext);
@@ -96,7 +70,7 @@ namespace MassTransit.QuartzIntegration
         }
 
 
-        public ISendContext CreateMessageContext(Uri sourceAddress, Uri destinationAddress)
+        ISendContext CreateMessageContext(Uri sourceAddress, Uri destinationAddress)
         {
             var context = new ScheduledMessageContext(Body);
 
@@ -120,60 +94,12 @@ namespace MassTransit.QuartzIntegration
             return context;
         }
 
-        Uri ToUri(string s)
+        static Uri ToUri(string s)
         {
             if (string.IsNullOrEmpty(s))
                 return null;
 
             return new Uri(s);
-        }
-
-        void TranslateJsonBody()
-        {
-            var envelope = JObject.Parse(Body);
-
-            envelope["destinationAddress"] = Destination;
-
-            JToken message = envelope["message"];
-
-            JToken payload = message["payload"];
-            var payloadType = message["payloadType"];
-            
-            envelope["message"] = payload;
-            envelope["messageType"] = payloadType;
-
-            Body = JsonConvert.SerializeObject(envelope, Formatting.Indented);
-        }
-
-        void TranslateXmlBody()
-        {
-            using (var reader = new StringReader(Body))
-            {
-                XDocument document = XDocument.Load(reader);
-
-                XElement envelope = (from e in document.Descendants("envelope") select e).Single();
-
-                XElement destinationAddress = (from a in envelope.Descendants("destinationAddress") select a).Single();
-
-                XElement message = (from m in envelope.Descendants("message") select m).Single();
-                IEnumerable<XElement> messageType = (from mt in envelope.Descendants("messageType") select mt);
-
-                XElement payload = (from p in message.Descendants("payload") select p).Single();
-                IEnumerable<XElement> payloadType = (from pt in message.Descendants("payloadType") select pt);
-
-                message.Remove();
-                messageType.Remove();
-
-                destinationAddress.Value = Destination;
-
-                message = new XElement("message");
-                message.Add(payload.Descendants());
-                envelope.Add(message);
-
-                envelope.Add(payloadType.Select(x => new XElement("messageType", x.Value)));
-
-                Body = document.ToString();
-            }
         }
     }
 }
