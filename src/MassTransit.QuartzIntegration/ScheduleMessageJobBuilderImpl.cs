@@ -26,6 +26,7 @@ namespace MassTransit.QuartzIntegration
             IConsumeContext<ScheduleMessage<T>> consumeContext;
             if (context.TryGetContext(out consumeContext))
             {
+
             }
 
             throw new InvalidOperationException("The message context could not be mapped: {0}" + typeof(T));

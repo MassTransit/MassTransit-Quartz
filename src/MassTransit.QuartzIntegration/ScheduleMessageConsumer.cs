@@ -47,6 +47,8 @@ namespace MassTransit.QuartzIntegration
                     context.Message.ScheduledTime);
             }
 
+
+
             string body;
             using (var ms = new MemoryStream())
             {
