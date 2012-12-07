@@ -32,9 +32,8 @@ namespace MassTransit.QuartzService
         static ScheduleMessageService CreateService(HostSettings arg)
         {
             var configurationProvider = new FileConfigurationProvider();
-            var jobFactory = new MassTransitJobFactory();
 
-            return new ScheduleMessageService(configurationProvider, jobFactory);
+            return new ScheduleMessageService(configurationProvider);
         }
     }
 }

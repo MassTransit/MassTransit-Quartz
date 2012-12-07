@@ -26,14 +26,11 @@ namespace MassTransit.QuartzService
     {
         readonly int _consumerLimit;
         readonly Uri _controlQueueUri;
-        readonly IJobFactory _jobFactory;
         readonly IScheduler _scheduler;
         IServiceBus _bus;
 
-        public ScheduleMessageService(IConfigurationProvider configurationProvider, IJobFactory jobFactory)
+        public ScheduleMessageService(IConfigurationProvider configurationProvider)
         {
-            _jobFactory = jobFactory;
-
             _controlQueueUri = configurationProvider.GetServiceBusUriFromSetting("ControlQueueName");
             _consumerLimit = configurationProvider.GetSetting("ConsumerLimit", Math.Min(2, Environment.ProcessorCount));
 
@@ -56,11 +53,12 @@ namespace MassTransit.QuartzService
 
                         x.Subscribe(s => s.Consumer(() => new ScheduleMessageConsumer(_scheduler)));
                     });
+
+                _scheduler.JobFactory = new MassTransitJobFactory(_bus);
             }
             catch (Exception)
             {
                 _scheduler.Shutdown();
-
                 throw;
             }
 
@@ -86,7 +84,6 @@ namespace MassTransit.QuartzService
             ISchedulerFactory schedulerFactory = new StdSchedulerFactory();
 
             IScheduler scheduler = schedulerFactory.GetScheduler();
-            scheduler.JobFactory = _jobFactory;
 
             return scheduler;
         }
