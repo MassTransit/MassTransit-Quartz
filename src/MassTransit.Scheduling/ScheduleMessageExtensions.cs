@@ -13,6 +13,8 @@
 namespace MassTransit.Scheduling
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
 
     /// <summary>
@@ -20,26 +22,21 @@ namespace MassTransit.Scheduling
     /// </summary>
     public static class ScheduleMessageExtensions
     {
-        public static ScheduledMessage<T> SchedulePublish<T>(this IServiceBus bus, DateTime scheduledTime, T message)
-            where T : class
-        {
-            var scheduleMessage = new ScheduleMessageCommand<T>(scheduledTime, message);
-
-            bus.Publish(scheduleMessage);
-
-            return new ScheduledMessageHandle<T>(scheduleMessage.CorrelationId, scheduleMessage.ScheduledTime,
-                scheduleMessage.Payload);
-        }
-
         public static ScheduledMessage<T> ScheduleSend<T>(this IEndpoint endpoint, DateTime scheduledTime, T message)
             where T : class
         {
-            var command = new ScheduleMessageCommand<T>(scheduledTime, message);
+            var command = new ScheduleMessageCommand<T>(scheduledTime, endpoint.Address.Uri, message);
 
             endpoint.Send(command);
 
-            return new ScheduledMessageHandle<T>(command.CorrelationId, command.ScheduledTime,
+            return new ScheduledMessageHandle<T>(command.CorrelationId, command.ScheduledTime, command.Destination,
                 command.Payload);
+        }
+
+        public static ScheduledMessage<T> ScheduleSend<T>(this IServiceBus bus, DateTime scheduledTime, T message)
+            where T : class
+        {
+            return bus.Endpoint.ScheduleSend(scheduledTime, message);
         }
 
         /// <summary>
@@ -90,7 +87,7 @@ namespace MassTransit.Scheduling
             ScheduleMessage<T>
             where T : class
         {
-            public ScheduleMessageCommand(DateTime scheduledTime, T payload)
+            public ScheduleMessageCommand(DateTime scheduledTime, Uri destination, T payload)
             {
                 CorrelationId = NewId.NextGuid();
 
@@ -98,11 +95,18 @@ namespace MassTransit.Scheduling
                                     ? scheduledTime.ToUniversalTime()
                                     : scheduledTime;
 
+                Destination = destination;
                 Payload = payload;
+
+                PayloadType = typeof(T).GetMessageTypes()
+                    .Select(x => new MessageUrn(x).ToString())
+                    .ToList();
             }
 
             public Guid CorrelationId { get; private set; }
             public DateTime ScheduledTime { get; private set; }
+            public IList<string> PayloadType { get; private set; }
+            public Uri Destination { get; private set; }
             public T Payload { get; private set; }
         }
 
@@ -111,15 +115,17 @@ namespace MassTransit.Scheduling
             ScheduledMessage<T>
             where T : class
         {
-            public ScheduledMessageHandle(Guid tokenId, DateTime scheduledTime, T payload)
+            public ScheduledMessageHandle(Guid tokenId, DateTime scheduledTime, Uri destination, T payload)
             {
                 TokenId = tokenId;
                 ScheduledTime = scheduledTime;
+                Destination = destination;
                 Payload = payload;
             }
 
             public Guid TokenId { get; private set; }
             public DateTime ScheduledTime { get; private set; }
+            public Uri Destination { get; private set; }
             public T Payload { get; private set; }
         }
     }

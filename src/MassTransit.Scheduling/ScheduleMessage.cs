@@ -13,6 +13,7 @@
 namespace MassTransit.Scheduling
 {
     using System;
+    using System.Collections.Generic;
 
 
     public interface ScheduleMessage :
@@ -22,6 +23,16 @@ namespace MassTransit.Scheduling
         /// The time at which the message should be published
         /// </summary>
         DateTime ScheduledTime { get; }
+
+        /// <summary>
+        /// The message types implemented by the message
+        /// </summary>
+        IList<string> PayloadType { get; }
+
+        /// <summary>
+        /// The destination where the message should be sent
+        /// </summary>
+        Uri Destination { get; }
     }
 
 

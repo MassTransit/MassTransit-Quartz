@@ -16,7 +16,6 @@ namespace MassTransit.QuartzIntegration
     using System.IO;
     using System.Text;
     using Logging;
-    using Magnum.Caching;
     using Quartz;
     using Scheduling;
 
@@ -24,15 +23,8 @@ namespace MassTransit.QuartzIntegration
     public class ScheduleMessageConsumer :
         Consumes<ScheduleMessage>.Context
     {
-        static readonly Cache<Type, ScheduleMessageJobBuilder> _builders;
         static readonly ILog _log = Logger.Get<ScheduleMessageConsumer>();
-
         readonly IScheduler _scheduler;
-
-        static ScheduleMessageConsumer()
-        {
-            _builders = new GenericTypeCache<ScheduleMessageJobBuilder>(typeof(ScheduleMessageJobBuilderImpl<>));
-        }
 
         public ScheduleMessageConsumer(IScheduler scheduler)
         {
@@ -47,8 +39,6 @@ namespace MassTransit.QuartzIntegration
                     context.Message.ScheduledTime);
             }
 
-
-
             string body;
             using (var ms = new MemoryStream())
             {
@@ -57,12 +47,22 @@ namespace MassTransit.QuartzIntegration
                 body = Encoding.UTF8.GetString(ms.ToArray());
             }
 
-            IJobDetail jobDetail = JobBuilder.Create<MessagePublishJob>()
+            IJobDetail jobDetail = JobBuilder.Create<ScheduledMessageJob>()
                 .RequestRecovery(true)
                 .WithIdentity(context.Message.CorrelationId.ToString("N"))
-                .UsingJobData("body", body)
-                .UsingJobData("sourceAddress", context.SourceAddress.ToString())
-                .UsingJobData("faultAddress", (context.FaultAddress ?? context.SourceAddress).ToString())
+                .UsingJobData("Destination", ToString(context.Message.Destination))
+                .UsingJobData("ResponseAddress", ToString(context.ResponseAddress))
+                .UsingJobData("FaultAddress", ToString(context.FaultAddress))
+                .UsingJobData("Body", body)
+                .UsingJobData("ContentType", context.ContentType)
+                .UsingJobData("MessageId", context.MessageId)
+                .UsingJobData("RequestId", context.RequestId)
+                .UsingJobData("ConversationId", context.ConversationId)
+                .UsingJobData("CorrelationId", context.CorrelationId)
+                .UsingJobData("ExpirationTime",
+                    context.ExpirationTime.HasValue ? context.ExpirationTime.Value.ToString() : "")
+                .UsingJobData("Network", context.Network)
+                .UsingJobData("RetryCount", context.RetryCount)
                 .Build();
 
             ITrigger trigger = TriggerBuilder.Create()
@@ -72,6 +72,14 @@ namespace MassTransit.QuartzIntegration
                 .Build();
 
             _scheduler.ScheduleJob(jobDetail, trigger);
+        }
+
+        string ToString(Uri uri)
+        {
+            if (uri == null)
+                return "";
+
+            return uri.ToString();
         }
     }
 }

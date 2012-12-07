@@ -20,6 +20,7 @@ namespace MassTransit.Scheduling
     {
         Guid TokenId { get; }
         DateTime ScheduledTime { get; }
+        Uri Destination { get; }
         T Payload { get; }
     }
 }
