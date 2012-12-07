@@ -27,38 +27,62 @@ namespace MassTransit.Scheduling
 
             bus.Publish(scheduleMessage);
 
-            return new ScheduledMessageHandle<T>(scheduleMessage.CorrelationId, scheduleMessage.ScheduledTime, scheduleMessage.Payload);
+            return new ScheduledMessageHandle<T>(scheduleMessage.CorrelationId, scheduleMessage.ScheduledTime,
+                scheduleMessage.Payload);
         }
 
         public static ScheduledMessage<T> ScheduleSend<T>(this IEndpoint endpoint, DateTime scheduledTime, T message)
             where T : class
         {
-            var scheduleMessage = new ScheduleMessageCommand<T>(scheduledTime, message);
+            var command = new ScheduleMessageCommand<T>(scheduledTime, message);
 
-            endpoint.Send(scheduleMessage);
+            endpoint.Send(command);
 
-            return new ScheduledMessageHandle<T>(scheduleMessage.CorrelationId, scheduleMessage.ScheduledTime, scheduleMessage.Payload);
+            return new ScheduledMessageHandle<T>(command.CorrelationId, command.ScheduledTime,
+                command.Payload);
         }
 
+        /// <summary>
+        /// Cancel a scheduled message using the scheduled message instance
+        /// </summary>
+        /// <param name="bus"></param>
+        /// <param name="message"> </param>
+        public static void CancelScheduledMessage<T>(this IServiceBus bus, ScheduledMessage<T> message)
+            where T : class
+        {
+            if (message == null)
+                throw new ArgumentNullException("message");
+
+            CancelScheduledMessage(bus, message.TokenId);
+        }
+
+        /// <summary>
+        /// Cancel a scheduled message using the tokenId that was returned when the message was scheduled.
+        /// </summary>
+        /// <param name="bus"></param>
+        /// <param name="tokenId">The tokenId of the scheduled message</param>
         public static void CancelScheduledMessage(this IServiceBus bus, Guid tokenId)
         {
-            var cancelScheduledMessage = new CancelScheduledMessageCommand(DateTime.UtcNow, tokenId);
+            var command = new CancelScheduledMessageCommand(tokenId);
 
-            bus.Publish(cancelScheduledMessage);
+            bus.Publish(command);
         }
 
 
         class CancelScheduledMessageCommand :
             CancelScheduledMessage
         {
-            public CancelScheduledMessageCommand(DateTime unscheduledTime, Guid tokenId)
+            public CancelScheduledMessageCommand(Guid tokenId)
             {
+                CorrelationId = NewId.NextGuid();
+                Timestamp = DateTime.UtcNow;
+
                 TokenId = tokenId;
-                UnscheduleTime = unscheduledTime;
             }
 
             public Guid TokenId { get; private set; }
-            public DateTime UnscheduleTime { get; private set; }
+            public DateTime Timestamp { get; private set; }
+            public Guid CorrelationId { get; private set; }
         }
 
 

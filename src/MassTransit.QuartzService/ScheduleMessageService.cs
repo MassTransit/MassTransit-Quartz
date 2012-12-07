@@ -16,7 +16,6 @@ namespace MassTransit.QuartzService
     using Configuration;
     using Quartz;
     using Quartz.Impl;
-    using Quartz.Spi;
     using QuartzIntegration;
     using Topshelf;
 
@@ -46,12 +45,17 @@ namespace MassTransit.QuartzService
                         // just support everything by default
                         x.UseMsmq();
                         x.UseRabbitMq();
+                        x.UseJsonSerializer();
 
                         // move this to app.config
                         x.ReceiveFrom(_controlQueueUri);
                         x.SetConcurrentConsumerLimit(_consumerLimit);
 
-                        x.Subscribe(s => s.Consumer(() => new ScheduleMessageConsumer(_scheduler)));
+                        x.Subscribe(s =>
+                            {
+                                s.Consumer(() => new ScheduleMessageConsumer(_scheduler));
+                                s.Consumer(() => new CancelScheduledMessageConsumer(_scheduler));
+                            });
                     });
 
                 _scheduler.JobFactory = new MassTransitJobFactory(_bus);
@@ -79,7 +83,7 @@ namespace MassTransit.QuartzService
             return true;
         }
 
-        IScheduler CreateScheduler()
+        static IScheduler CreateScheduler()
         {
             ISchedulerFactory schedulerFactory = new StdSchedulerFactory();
 

@@ -12,20 +12,27 @@
 // specific language governing permissions and limitations under the License.
 namespace MassTransit.QuartzIntegration
 {
+    using System;
     using System.IO;
     using System.Text;
     using Logging;
+    using Magnum.Caching;
     using Quartz;
     using Scheduling;
 
 
     public class ScheduleMessageConsumer :
-        Consumes<ScheduleMessage>.Context,
-        Consumes<CancelScheduledMessage>.Context
+        Consumes<ScheduleMessage>.Context
     {
+        static readonly Cache<Type, ScheduleMessageJobBuilder> _builders;
         static readonly ILog _log = Logger.Get<ScheduleMessageConsumer>();
 
         readonly IScheduler _scheduler;
+
+        static ScheduleMessageConsumer()
+        {
+            _builders = new GenericTypeCache<ScheduleMessageJobBuilder>(typeof(ScheduleMessageJobBuilderImpl<>));
+        }
 
         public ScheduleMessageConsumer(IScheduler scheduler)
         {
@@ -35,8 +42,10 @@ namespace MassTransit.QuartzIntegration
         public void Consume(IConsumeContext<ScheduleMessage> context)
         {
             if (_log.IsDebugEnabled)
+            {
                 _log.DebugFormat("ScheduleMessage: {0} at {1}", context.Message.CorrelationId,
                     context.Message.ScheduledTime);
+            }
 
             string body;
             using (var ms = new MemoryStream())
@@ -47,28 +56,20 @@ namespace MassTransit.QuartzIntegration
             }
 
             IJobDetail jobDetail = JobBuilder.Create<MessagePublishJob>()
-                                             .RequestRecovery(true)
-                                             .WithIdentity(context.Message.CorrelationId.ToString("N"))
-                                             .UsingJobData("body", body)
-                                             .UsingJobData("sourceAddress", context.SourceAddress.ToString())
-                                             .UsingJobData("faultAddress", (context.FaultAddress ?? context.SourceAddress).ToString())
-                                             .Build();
+                .RequestRecovery(true)
+                .WithIdentity(context.Message.CorrelationId.ToString("N"))
+                .UsingJobData("body", body)
+                .UsingJobData("sourceAddress", context.SourceAddress.ToString())
+                .UsingJobData("faultAddress", (context.FaultAddress ?? context.SourceAddress).ToString())
+                .Build();
 
             ITrigger trigger = TriggerBuilder.Create()
-                                             .ForJob(jobDetail)
-                                             .StartAt(context.Message.ScheduledTime)
-                                             .WithIdentity(new TriggerKey(context.Message.CorrelationId.ToString("N")))
-                                             .Build();
+                .ForJob(jobDetail)
+                .StartAt(context.Message.ScheduledTime)
+                .WithIdentity(new TriggerKey(context.Message.CorrelationId.ToString("N")))
+                .Build();
 
             _scheduler.ScheduleJob(jobDetail, trigger);
-        }
-
-        public void Consume(IConsumeContext<CancelScheduledMessage> context)
-        {
-            bool unscheduledJob = _scheduler.UnscheduleJob(new TriggerKey(context.Message.TokenId.ToString("N")));
-
-            if (_log.IsDebugEnabled && unscheduledJob)
-                _log.DebugFormat("UnscheduledMessage: {0} at {1}", context.Message.TokenId, context.Message.UnscheduleTime);
         }
     }
 }

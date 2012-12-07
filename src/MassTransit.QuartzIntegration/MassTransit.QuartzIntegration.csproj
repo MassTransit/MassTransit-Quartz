@@ -54,9 +54,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CancelScheduledMessageConsumer.cs" />
     <Compile Include="MessagePublishJob.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScheduleMessageConsumer.cs" />
+    <Compile Include="ScheduleMessageJobBuilder.cs" />
+    <Compile Include="ScheduleMessageJobBuilderImpl.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

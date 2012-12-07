@@ -10,22 +10,23 @@
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the 
 // specific language governing permissions and limitations under the License.
-namespace MassTransit.Scheduling
+namespace MassTransit.QuartzIntegration.Tests
 {
     using System;
+    using System.Diagnostics;
 
 
-    public interface CancelScheduledMessage :
-        CorrelatedBy<Guid>
+    public static class Utils
     {
-        /// <summary>
-        /// The date/time this message was created
-        /// </summary>
-        DateTime Timestamp { get; }
+        public static TimeSpan Timeout
+        {
+            get
+            {
+                if (Debugger.IsAttached)
+                    return TimeSpan.FromMinutes(10);
 
-        /// <summary>
-        /// The token of the scheduled message
-        /// </summary>
-        Guid TokenId { get; }
+                return TimeSpan.FromSeconds(8);
+            }
+        }
     }
 }

@@ -28,7 +28,7 @@ namespace MassTransit.QuartzIntegration.Tests
         {
             _bus.SchedulePublish(5.Seconds().FromNow(), new A());
 
-            Thread.Sleep(8.Seconds());
+            Thread.Sleep(Utils.Timeout);
         }
 
 
