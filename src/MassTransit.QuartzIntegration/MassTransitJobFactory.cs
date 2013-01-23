@@ -51,6 +51,10 @@ namespace MassTransit.QuartzIntegration
 
             return _typeFactories[type].NewJob(bundle, scheduler);
         }
+
+        public void ReturnJob(IJob job)
+        {
+        }
     }
 
 
@@ -97,6 +101,10 @@ namespace MassTransit.QuartzIntegration
                     "Problem instantiating class '{0}'", bundle.JobDetail.JobType.FullName), ex);
                 throw sex;
             }
+        }
+
+        public void ReturnJob(IJob job)
+        {
         }
 
         void SetObjectProperties(T job, JobDataMap jobData)
