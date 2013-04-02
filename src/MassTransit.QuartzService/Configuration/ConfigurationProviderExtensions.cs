@@ -15,6 +15,8 @@ namespace MassTransit.QuartzService.Configuration
     using System;
     using System.Configuration;
     using System.Globalization;
+    using System.Linq;
+    using Transports.RabbitMq.Configuration.Configurators;
 
 
     public static class ConfigurationProviderExtensions
@@ -33,16 +35,19 @@ namespace MassTransit.QuartzService.Configuration
             {
                 string host = configuration.GetSetting("RabbitMQHost");
                 string vhost = configuration.GetSetting("RabbitMQVirtualHost");
+                string queueOptions = configuration.GetSetting("RabbitMQOptions", "");
+
                 var builder = new UriBuilder("rabbitmq", host);
 
-                builder.UserName = configuration.GetSetting("RabbitMQUsername");
-                builder.Password = configuration.GetSetting("RabbitMQPassword");
-                
-                var paths = vhost.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
+                string[] paths = vhost.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
 
-                builder.Path = string.Format("/{0}", string.Join("/",paths));
+                string path = string.Join("/", paths.Concat(new[]{queueName}).ToArray());
 
-                return new Uri(builder.Uri, queueName);
+                builder.Path = string.Format("/{0}", string.Join("/", paths));
+                builder.Path = path;
+                builder.Query = queueOptions;
+
+                return builder.Uri;
             }
 
             if (string.Compare("msmq", scheme, StringComparison.OrdinalIgnoreCase) == 0)
@@ -57,6 +62,23 @@ namespace MassTransit.QuartzService.Configuration
             throw new ConfigurationErrorsException(string.Format(CultureInfo.InvariantCulture,
                 "An unrecognized scheme was found: {0}", scheme));
         }
+
+
+        public static void ConfigureRabbitMqHost(this RabbitMqTransportFactoryConfigurator configurator,
+            IConfigurationProvider configuration)
+        {
+            Uri hostAddress = GetServiceBusUri(configuration, "ignored");
+
+            string userName = configuration.GetSetting("RabbitMQUsername");
+            string password = configuration.GetSetting("RabbitMQPassword");
+
+            configurator.ConfigureHost(hostAddress, h =>
+                {
+                    h.SetUsername(userName);
+                    h.SetPassword(password);
+                });
+        }
+
 
         public static string GetSetting(this IConfigurationProvider configuration, string key, string defaultValue)
         {

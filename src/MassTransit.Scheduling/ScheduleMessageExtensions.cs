@@ -22,21 +22,164 @@ namespace MassTransit.Scheduling
     /// </summary>
     public static class ScheduleMessageExtensions
     {
-        public static ScheduledMessage<T> ScheduleSend<T>(this IEndpoint endpoint, DateTime scheduledTime, T message)
+        /// <summary>
+        /// Sends a ScheduleMessage command to the endpoint, using the specified arguments
+        /// </summary>
+        /// <typeparam name="T">The scheduled message type</typeparam>
+        /// <param name="endpoint">The endpoint of the message scheduling service</param>
+        /// <param name="destinationAddress">The destination address where the schedule message should be sent</param>
+        /// <param name="scheduledTime">The time when the message should be sent to the endpoint</param>
+        /// <param name="message">The message to send</param>
+        /// <returns>A handled to the scheduled message</returns>
+        public static ScheduledMessage<T> ScheduleSend<T>(this IEndpoint endpoint, Uri destinationAddress, DateTime scheduledTime, T message)
             where T : class
         {
-            var command = new ScheduleMessageCommand<T>(scheduledTime, endpoint.Address.Uri, message);
+            var command = new ScheduleMessageCommand<T>(scheduledTime, destinationAddress, message);
 
-            endpoint.Send(command);
+            endpoint.Send<ScheduleMessage<T>>(command);
 
             return new ScheduledMessageHandle<T>(command.CorrelationId, command.ScheduledTime, command.Destination,
                 command.Payload);
         }
 
-        public static ScheduledMessage<T> ScheduleSend<T>(this IServiceBus bus, DateTime scheduledTime, T message)
+        /// <summary>
+        /// Sends a ScheduleMessage command to the endpoint, using the specified arguments
+        /// </summary>
+        /// <typeparam name="T">The scheduled message type</typeparam>
+        /// <param name="endpoint">The endpoint of the message scheduling service</param>
+        /// <param name="destinationAddress">The destionation address for the schedule message</param>
+        /// <param name="scheduledTime">The time when the message should be sent to the endpoint</param>
+        /// <param name="message">The message to send</param>
+        /// <returns></returns>
+        public static ScheduledMessage<T> ScheduleSend<T>(this IEndpoint endpoint, IEndpointAddress destinationAddress, DateTime scheduledTime, T message)
             where T : class
         {
-            return bus.Endpoint.ScheduleSend(scheduledTime, message);
+            return ScheduleSend(endpoint, destinationAddress.Uri, scheduledTime, message);
+        }
+
+        /// <summary>
+        /// Sends a ScheduleMessage command to the endpoint, using the specified arguments
+        /// </summary>
+        /// <typeparam name="T">The scheduled message type</typeparam>
+        /// <param name="endpoint">The endpoint of the message scheduling service</param>
+        /// <param name="bus">The bus instance where the scheduled message should be sent</param>
+        /// <param name="scheduledTime">The time when the message should be sent to the endpoint</param>
+        /// <param name="message">The message to send</param>
+        /// <returns></returns>
+        public static ScheduledMessage<T> ScheduleSend<T>(this IEndpoint endpoint, IServiceBus bus, DateTime scheduledTime, T message)
+            where T : class
+        {
+            return ScheduleSend(endpoint, bus.Endpoint.Address.Uri, scheduledTime, message);
+        }
+
+        /// <summary>
+        /// Sends a ScheduleMessage command to the endpoint, using the specified arguments
+        /// </summary>
+        /// <typeparam name="T">The scheduled message type</typeparam>
+        /// <param name="endpoint">The endpoint of the message scheduling service</param>
+        /// <param name="destinationEndpoint">The destination endpoint where the scheduled message should be sent</param>
+        /// <param name="scheduledTime">The time when the message should be sent to the endpoint</param>
+        /// <param name="message">The message to send</param>
+        /// <returns></returns>
+        public static ScheduledMessage<T> ScheduleSend<T>(this IEndpoint endpoint, IEndpoint destinationEndpoint, DateTime scheduledTime, T message)
+            where T : class
+        {
+            return ScheduleSend(endpoint, destinationEndpoint.Address.Uri, scheduledTime, message);
+        }
+
+        /// <summary>
+        /// Cancel a scheduled message using the scheduled message instance
+        /// </summary>
+        /// <param name="endpoint">The endpoint of the scheduling service</param>
+        /// <param name="message">The schedule message reference</param>
+        public static void CancelScheduledSend<T>(this IEndpoint endpoint, ScheduledMessage<T> message)
+            where T : class
+        {
+            if (message == null)
+                throw new ArgumentNullException("message");
+
+            CancelScheduledSend(endpoint, message.TokenId);
+        }
+
+        /// <summary>
+        /// Cancel a scheduled message using the tokenId that was returned when the message was scheduled.
+        /// </summary>
+        /// <param name="endpoint">The endpoint of the scheduling service</param>
+        /// <param name="tokenId">The tokenId of the scheduled message</param>
+        public static void CancelScheduledSend(this IEndpoint endpoint, Guid tokenId)
+        {
+            var command = new CancelScheduledMessageCommand(tokenId);
+
+            endpoint.Send<CancelScheduledMessage>(command);
+        }
+
+
+        /// <summary>
+        /// Schedules a message to be sent to the bus using a Publish, which should only be used when
+        /// the quartz service is on a single shared queue or behind a distributor
+        /// </summary>
+        /// <typeparam name="T">The scheduled message type</typeparam>
+        /// <param name="bus">The bus from which the scheduled message command should be published</param>
+        /// <param name="destinationAddress">The destination address where the schedule message should be sent</param>
+        /// <param name="scheduledTime">The time when the message should be sent to the endpoint</param>
+        /// <param name="message">The message to send</param>
+        /// <returns>A handled to the scheduled message</returns>
+        public static ScheduledMessage<T> ScheduleMessage<T>(this IServiceBus bus, Uri destinationAddress, DateTime scheduledTime, T message)
+            where T : class
+        {
+            var command = new ScheduleMessageCommand<T>(scheduledTime, destinationAddress, message);
+
+            bus.Publish<ScheduleMessage<T>>(command);
+
+            return new ScheduledMessageHandle<T>(command.CorrelationId, command.ScheduledTime, command.Destination,
+                command.Payload);
+        }
+
+        /// <summary>
+        /// Schedules a message to be sent to the bus using a Publish, which should only be used when
+        /// the quartz service is on a single shared queue or behind a distributor
+        /// </summary>
+        /// <typeparam name="T">The scheduled message type</typeparam>
+        /// <param name="bus">The bus from which the scheduled message command should be published</param>
+        /// <param name="destinationAddress">The destination address where the schedule message should be sent</param>
+        /// <param name="scheduledTime">The time when the message should be sent to the endpoint</param>
+        /// <param name="message">The message to send</param>
+        /// <returns>A handled to the scheduled message</returns>
+        public static ScheduledMessage<T> ScheduleMessage<T>(this IServiceBus bus, IEndpointAddress destinationAddress, DateTime scheduledTime, T message)
+            where T : class
+        {
+            return ScheduleMessage(bus, destinationAddress.Uri, scheduledTime, message);
+        }
+
+        /// <summary>
+        /// Schedules a message to be sent to the bus using a Publish, which should only be used when
+        /// the quartz service is on a single shared queue or behind a distributor
+        /// </summary>
+        /// <typeparam name="T">The scheduled message type</typeparam>
+        /// <param name="bus">The bus from which the scheduled message command should be published</param>
+        /// <param name="destinationEndpoint">The destination address where the schedule message should be sent</param>
+        /// <param name="scheduledTime">The time when the message should be sent to the endpoint</param>
+        /// <param name="message">The message to send</param>
+        /// <returns>A handled to the scheduled message</returns>
+        public static ScheduledMessage<T> ScheduleMessage<T>(this IServiceBus bus, IEndpoint destinationEndpoint, DateTime scheduledTime, T message)
+            where T : class
+        {
+            return ScheduleMessage(bus, destinationEndpoint.Address.Uri, scheduledTime, message);
+        }
+
+        /// <summary>
+        /// Schedules a message to be sent to the bus using a Publish, which should only be used when
+        /// the quartz service is on a single shared queue or behind a distributor
+        /// </summary>
+        /// <typeparam name="T">The scheduled message type</typeparam>
+        /// <param name="bus">The bus from which the scheduled message command should be published</param>
+        /// <param name="scheduledTime">The time when the message should be sent to the endpoint</param>
+        /// <param name="message">The message to send</param>
+        /// <returns>A handled to the scheduled message</returns>
+        public static ScheduledMessage<T> ScheduleMessage<T>(this IServiceBus bus, DateTime scheduledTime, T message)
+            where T : class
+        {
+            return ScheduleMessage(bus, bus.Endpoint.Address.Uri, scheduledTime, message);
         }
 
         /// <summary>
@@ -62,7 +205,7 @@ namespace MassTransit.Scheduling
         {
             var command = new CancelScheduledMessageCommand(tokenId);
 
-            bus.Publish(command);
+            bus.Publish<CancelScheduledMessage>(command);
         }
 
 

@@ -149,7 +149,7 @@ nuspec :create_nuspec do |nuspec|
   nuspec.licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0"
   nuspec.requireLicenseAcceptance = "false"
   nuspec.dependency "Magnum", "2.1.0"
-  nuspec.dependency "MassTransit", "2.7.0"
+  nuspec.dependency "MassTransit", "2.7.1"
   nuspec.output_file = File.join(props[:artifacts], 'MassTransit.Scheduling.nuspec')
   add_files File.join(props[:output], 'Scheduling'), 'MassTransit.Scheduling.{dll,pdb,xml}', nuspec
   nuspec.file(File.join(props[:src], "MassTransit.Scheduling\\**\\*.cs").gsub("/","\\"), "src")
@@ -168,10 +168,11 @@ nuspec :create_nuspec do |nuspec|
   nuspec.licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0"
   nuspec.requireLicenseAcceptance = "false"
   nuspec.dependency "Magnum", "2.1.0"
-  nuspec.dependency "MassTransit", "2.7.0"
+  nuspec.dependency "MassTransit", "2.7.1"
+  nuspec.dependency "MassTransit.Scheduling", NUGET_VERSION
   nuspec.dependency "Common.Logging", "2.0.0"
   nuspec.dependency "Newtonsoft.Json", "4.5.11"
-  nuspec.dependency "Quartz", "2.0.1"
+  nuspec.dependency "Quartz", "2.1.2"
   nuspec.output_file = File.join(props[:artifacts], 'MassTransit.QuartzIntegration.nuspec')
   add_files File.join(props[:output], 'Integration'), 'MassTransit.QuartzIntegration.{dll,pdb,xml}', nuspec
   nuspec.file(File.join(props[:src], "MassTransit.QuartzIntegration\\**\\*.cs").gsub("/","\\"), "src")

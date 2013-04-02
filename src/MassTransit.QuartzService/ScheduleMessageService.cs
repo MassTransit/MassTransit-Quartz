@@ -13,7 +13,10 @@
 namespace MassTransit.QuartzService
 {
     using System;
+    using System.Linq;
     using Configuration;
+    using Diagnostics.Introspection;
+    using Logging;
     using Quartz;
     using Quartz.Impl;
     using QuartzIntegration;
@@ -23,13 +26,16 @@ namespace MassTransit.QuartzService
     public class ScheduleMessageService :
         ServiceControl
     {
+        readonly IConfigurationProvider _configurationProvider;
         readonly int _consumerLimit;
         readonly Uri _controlQueueUri;
+        readonly ILog _log = Logger.Get<ScheduleMessageService>();
         readonly IScheduler _scheduler;
         IServiceBus _bus;
 
         public ScheduleMessageService(IConfigurationProvider configurationProvider)
         {
+            _configurationProvider = configurationProvider;
             _controlQueueUri = configurationProvider.GetServiceBusUriFromSetting("ControlQueueName");
             _consumerLimit = configurationProvider.GetSetting("ConsumerLimit", Math.Min(2, Environment.ProcessorCount));
 
@@ -44,7 +50,7 @@ namespace MassTransit.QuartzService
                     {
                         // just support everything by default
                         x.UseMsmq();
-                        x.UseRabbitMq();
+                        x.UseRabbitMq(rmq => rmq.ConfigureRabbitMqHost(_configurationProvider));
                         x.UseJsonSerializer();
 
                         // move this to app.config
@@ -58,6 +64,9 @@ namespace MassTransit.QuartzService
                             });
                     });
 
+                if (_log.IsInfoEnabled)
+                    _log.Info(GetProbeInfo());
+
                 _scheduler.JobFactory = new MassTransitJobFactory(_bus);
             }
             catch (Exception)
@@ -69,6 +78,16 @@ namespace MassTransit.QuartzService
             _scheduler.Start();
 
             return true;
+        }
+
+        string GetProbeInfo()
+        {
+            var strings = _bus.Probe().Entries
+                              .Where(x => !x.Key.StartsWith("zz."))
+                              .Select(x => string.Format("{0}: {1}", x.Key, x.Value));
+
+            var probe = string.Join(Environment.NewLine, strings.ToArray());
+            return probe;
         }
 
         public bool Stop(HostControl hostControl)

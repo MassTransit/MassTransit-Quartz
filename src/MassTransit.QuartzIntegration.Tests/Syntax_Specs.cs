@@ -26,7 +26,7 @@ namespace MassTransit.QuartzIntegration.Tests
             IServiceBus bus = ServiceBusFactory.New(x => x.ReceiveFrom("loopback://localhost/client"));
             using (bus)
             {
-                ScheduledMessage<A> scheduledMessage = bus.ScheduleSend(5.Seconds().FromNow(), new A());
+                ScheduledMessage<A> scheduledMessage = bus.ScheduleMessage(5.Seconds().FromNow(), new A());
 
                 Assert.IsNotNull(scheduledMessage);
             }

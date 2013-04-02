@@ -26,7 +26,7 @@ namespace MassTransit.QuartzIntegration.Tests
         [Test]
         public void Should_startup_properly()
         {
-            _bus.Endpoint.ScheduleSend(1.Seconds().FromUtcNow(), new A {Name = "Joe"});
+            _bus.ScheduleMessage(1.Seconds().FromUtcNow(), new A {Name = "Joe"});
 
             Assert.IsTrue(_receivedA.WaitOne(Utils.Timeout), "Message A not handled");
             Assert.IsTrue(_receivedIA.WaitOne(Utils.Timeout), "Message IA not handled");
@@ -95,7 +95,7 @@ namespace MassTransit.QuartzIntegration.Tests
         [Test]
         public void Should_startup_properly()
         {
-            _bus.Endpoint.ScheduleSend(1.Seconds().FromUtcNow(), new A {Name = "Joe"});
+            _bus.ScheduleMessage(1.Seconds().FromUtcNow(), new A {Name = "Joe"});
 
             Assert.IsTrue(_receivedA.WaitOne(Utils.Timeout), "Message A not handled");
             Assert.IsTrue(_receivedIA.WaitOne(Utils.Timeout), "Message IA not handled");
@@ -164,7 +164,7 @@ namespace MassTransit.QuartzIntegration.Tests
         [Test]
         public void Should_cancel_the_scheduled_message()
         {
-            ScheduledMessage<A> scheduledMessage = _bus.Endpoint.ScheduleSend(8.Seconds().FromUtcNow(),
+            ScheduledMessage<A> scheduledMessage = _bus.ScheduleMessage(8.Seconds().FromUtcNow(),
                 new A {Name = "Joe"});
 
             _bus.CancelScheduledMessage(scheduledMessage);
