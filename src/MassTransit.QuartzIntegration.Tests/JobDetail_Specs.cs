@@ -73,8 +73,8 @@
 
             public void Execute(IJobExecutionContext context)
             {
-                Signaled.Set();
                 SignaledBody = Body;
+                Signaled.Set();
             }
 
             public string Body { get; set; }
