@@ -61,6 +61,9 @@ namespace MassTransit.QuartzService
                             {
                                 s.Consumer(() => new ScheduleMessageConsumer(_scheduler));
                                 s.Consumer(() => new CancelScheduledMessageConsumer(_scheduler));
+
+                                s.Consumer(() => new ScheduleTimeoutConsumer(_scheduler));
+                                s.Consumer(() => new CancelScheduledTimeoutConsumer(_scheduler));
                             });
                     });
 

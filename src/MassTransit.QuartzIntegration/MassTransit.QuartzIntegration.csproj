@@ -64,12 +64,15 @@
       <Link>SolutionVersion.cs</Link>
     </Compile>
     <Compile Include="CancelScheduledMessageConsumer.cs" />
+    <Compile Include="CancelScheduledTimeoutConsumer.cs" />
     <Compile Include="MassTransitJobFactory.cs" />
     <Compile Include="ScheduledMessageContext.cs" />
     <Compile Include="ScheduledMessageJob.cs" />
+    <Compile Include="ScheduledTimeoutJob.cs" />
     <Compile Include="ScheduleMessageConsumer.cs" />
     <Compile Include="ScheduleMessageJobBuilder.cs" />
     <Compile Include="ScheduleMessageJobBuilderImpl.cs" />
+    <Compile Include="ScheduleTimeoutConsumer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="job_scheduling_data_2_0.xsd">

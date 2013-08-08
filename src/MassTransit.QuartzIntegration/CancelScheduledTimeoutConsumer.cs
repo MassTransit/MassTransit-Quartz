@@ -14,33 +14,40 @@ namespace MassTransit.QuartzIntegration
 {
     using Logging;
     using Quartz;
-    using Scheduling;
+    using Services.Timeout.Messages;
 
 
-    public class CancelScheduledMessageConsumer :
-        Consumes<CancelScheduledMessage>.Context
+    public class CancelScheduledTimeoutConsumer :
+        Consumes<CancelTimeout>.Context
     {
-        static readonly ILog _log = Logger.Get<CancelScheduledMessageConsumer>();
+        static readonly ILog _log = Logger.Get<CancelScheduledTimeoutConsumer>();
         readonly IScheduler _scheduler;
 
-        public CancelScheduledMessageConsumer(IScheduler scheduler)
+        public CancelScheduledTimeoutConsumer(IScheduler scheduler)
         {
             _scheduler = scheduler;
         }
 
-        public void Consume(IConsumeContext<CancelScheduledMessage> context)
+        public void Consume(IConsumeContext<CancelTimeout> context)
         {
-            bool unscheduledJob = _scheduler.UnscheduleJob(new TriggerKey(context.Message.TokenId.ToString("N")));
+            string triggerKey = context.Message.CorrelationId.ToString("N") + context.Message.Tag;
+
+            bool unscheduledJob = _scheduler.UnscheduleJob(new TriggerKey(triggerKey));
 
             if (_log.IsDebugEnabled)
             {
                 if (unscheduledJob)
                 {
-                    _log.DebugFormat("CancelScheduledMessage: {0} at {1}", context.Message.TokenId,
-                        context.Message.Timestamp);
+                    _log.DebugFormat("CancelScheduledMessage: {0}", triggerKey);
+
+                    context.Bus.Publish(new TimeoutCancelled
+                    {
+                        CorrelationId = context.Message.CorrelationId,
+                        Tag = context.Message.Tag,
+                    });
                 }
                 else
-                    _log.DebugFormat("CancelScheduledMessage: no message found {0}", context.Message.TokenId);
+                    _log.DebugFormat("CancelScheduledMessage: no message found {0}", triggerKey);
             }
         }
     }
