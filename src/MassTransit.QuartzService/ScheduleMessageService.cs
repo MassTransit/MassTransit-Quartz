@@ -15,7 +15,6 @@ namespace MassTransit.QuartzService
     using System;
     using System.Linq;
     using Configuration;
-    using Diagnostics.Introspection;
     using Logging;
     using Quartz;
     using Quartz.Impl;
@@ -71,14 +70,14 @@ namespace MassTransit.QuartzService
                     _log.Info(GetProbeInfo());
 
                 _scheduler.JobFactory = new MassTransitJobFactory(_bus);
+
+                _scheduler.Start();
             }
             catch (Exception)
             {
                 _scheduler.Shutdown();
                 throw;
             }
-
-            _scheduler.Start();
 
             return true;
         }
