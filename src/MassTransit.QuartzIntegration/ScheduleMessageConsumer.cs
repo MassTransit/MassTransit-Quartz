@@ -74,6 +74,7 @@ namespace MassTransit.QuartzIntegration
                 .UsingJobData("RequestId", context.RequestId)
                 .UsingJobData("ConversationId", context.ConversationId)
                 .UsingJobData("CorrelationId", context.CorrelationId)
+                .UsingJobData("HeadersAsJson", JsonConvert.SerializeObject(context.Headers))
                 .UsingJobData("ExpirationTime",
                     context.ExpirationTime.HasValue ? context.ExpirationTime.Value.ToString() : "")
                 .UsingJobData("Network", context.Network)

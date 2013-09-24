@@ -12,6 +12,9 @@
 // specific language governing permissions and limitations under the License.
 namespace MassTransit.QuartzIntegration.Tests
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using Magnum.Extensions;
     using NUnit.Framework;
@@ -32,7 +35,7 @@ namespace MassTransit.QuartzIntegration.Tests
             Assert.IsTrue(_receivedIA.WaitOne(Utils.Timeout), "Message IA not handled");
         }
 
-
+       
         class A : IA
         {
             public string Name { get; set; }
@@ -214,6 +217,78 @@ namespace MassTransit.QuartzIntegration.Tests
                             s.Consumer(() => new CancelScheduledMessageConsumer(_scheduler));
                         });
                 });
+
+            _scheduler.JobFactory = new MassTransitJobFactory(_bus);
+            _scheduler.Start();
+        }
+
+        [TestFixtureTearDown]
+        public void Teardown_quartz_service()
+        {
+            if (_scheduler != null)
+                _scheduler.Standby();
+            if (_bus != null)
+                _bus.Dispose();
+            if (_scheduler != null)
+                _scheduler.Shutdown();
+        }
+    }
+
+    [TestFixture]
+    public class Using_the_quartz_service_with_headers
+    {
+        [Test]
+        public void Should_not_loose_headers()
+        {
+            var headers = new KeyValuePair<string, string>[0];
+            _bus.SubscribeContextHandler<A>(ctx =>
+            {
+                headers = ctx.Headers.ToArray();
+                _receivedA.Set();
+            });
+
+            _bus.ScheduleMessage(1.Seconds().FromUtcNow(), new A { Name = "Joe" },
+                ctx =>
+                {
+                    ctx.SetHeader("ATest", "AValue");
+                });
+
+            Assert.IsTrue(_receivedA.WaitOne(Utils.Timeout), "Message A not handled");
+            Assert.IsNotEmpty(headers, "No Headers were sent");
+            Assert.AreEqual("AValue", headers.First(h => h.Key == "ATest").Value);
+        }
+
+    
+
+        class A 
+        {
+            public string Name { get; set; }
+        }
+
+
+
+        IScheduler _scheduler;
+        IServiceBus _bus;
+        ManualResetEvent _receivedA;
+
+        [TestFixtureSetUp]
+        public void Setup_quartz_service()
+        {
+            ISchedulerFactory schedulerFactory = new StdSchedulerFactory();
+            _scheduler = schedulerFactory.GetScheduler();
+
+            _receivedA = new ManualResetEvent(false);
+
+            _bus = ServiceBusFactory.New(x =>
+            {
+                x.ReceiveFrom("loopback://localhost/quartz");
+                x.UseJsonSerializer();
+
+                x.Subscribe(s =>
+                {
+                    s.Consumer(() => new ScheduleMessageConsumer(_scheduler));
+                });
+            });
 
             _scheduler.JobFactory = new MassTransitJobFactory(_bus);
             _scheduler.Start();

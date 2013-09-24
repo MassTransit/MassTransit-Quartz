@@ -123,13 +123,14 @@ namespace MassTransit.Scheduling
         /// <param name="destinationAddress">The destination address where the schedule message should be sent</param>
         /// <param name="scheduledTime">The time when the message should be sent to the endpoint</param>
         /// <param name="message">The message to send</param>
+        /// <param name="contextCallback">Optional: A callback that gives the caller access to the publish context.</param>
         /// <returns>A handled to the scheduled message</returns>
-        public static ScheduledMessage<T> ScheduleMessage<T>(this IServiceBus bus, Uri destinationAddress, DateTime scheduledTime, T message)
+        public static ScheduledMessage<T> ScheduleMessage<T>(this IServiceBus bus, Uri destinationAddress, DateTime scheduledTime, T message, Action<IPublishContext<ScheduleMessage<T>>> contextCallback = null)
             where T : class
         {
             var command = new ScheduleMessageCommand<T>(scheduledTime, destinationAddress, message);
 
-            bus.Publish<ScheduleMessage<T>>(command);
+            bus.Publish<ScheduleMessage<T>>(command, contextCallback ?? (c => {}));
 
             return new ScheduledMessageHandle<T>(command.CorrelationId, command.ScheduledTime, command.Destination,
                 command.Payload);
@@ -175,11 +176,12 @@ namespace MassTransit.Scheduling
         /// <param name="bus">The bus from which the scheduled message command should be published</param>
         /// <param name="scheduledTime">The time when the message should be sent to the endpoint</param>
         /// <param name="message">The message to send</param>
+        ///  /// <param name="contextCallback">Optional: A callback that gives the caller access to the publish context.</param>
         /// <returns>A handled to the scheduled message</returns>
-        public static ScheduledMessage<T> ScheduleMessage<T>(this IServiceBus bus, DateTime scheduledTime, T message)
+        public static ScheduledMessage<T> ScheduleMessage<T>(this IServiceBus bus, DateTime scheduledTime, T message, Action<IPublishContext<ScheduleMessage<T>>> contextCallback = null)
             where T : class
         {
-            return ScheduleMessage(bus, bus.Endpoint.Address.Uri, scheduledTime, message);
+            return ScheduleMessage(bus, bus.Endpoint.Address.Uri, scheduledTime, message, contextCallback);
         }
 
         /// <summary>

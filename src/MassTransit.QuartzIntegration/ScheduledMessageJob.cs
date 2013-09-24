@@ -13,8 +13,10 @@
 namespace MassTransit.QuartzIntegration
 {
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using Logging;
+    using Newtonsoft.Json;
     using Quartz;
 
 
@@ -45,6 +47,7 @@ namespace MassTransit.QuartzIntegration
         public string CorrelationId { get; set; }
         public string Network { get; set; }
         public int RetryCount { get; set; }
+        public string HeadersAsJson { get; set; }
 
         public void Execute(IJobExecutionContext context)
         {
@@ -79,6 +82,7 @@ namespace MassTransit.QuartzIntegration
             context.SetResponseAddress(ToUri(ResponseAddress));
             context.SetFaultAddress(ToUri(FaultAddress));
 
+            SetHeaders(context);
             context.SetMessageId(MessageId);
             context.SetRequestId(RequestId);
             context.SetConversationId(ConversationId);
@@ -92,6 +96,15 @@ namespace MassTransit.QuartzIntegration
             context.SetContentType(ContentType);
 
             return context;
+        }
+
+        void SetHeaders(ScheduledMessageContext context)
+        {
+            if (string.IsNullOrEmpty(HeadersAsJson))
+                return;
+
+            var headers = JsonConvert.DeserializeObject<IEnumerable<KeyValuePair<string, string>>>(HeadersAsJson);
+            context.SetHeaders(headers);
         }
 
         static Uri ToUri(string s)

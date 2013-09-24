@@ -13,6 +13,7 @@
 namespace MassTransit.QuartzIntegration
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using Context;
     using Serialization.Custom;
@@ -38,6 +39,12 @@ namespace MassTransit.QuartzIntegration
             {
                 writer.Write(_body);
             }
+        }
+
+        public void SetHeaders(IEnumerable<KeyValuePair<string, string>> headers)
+        {
+            foreach (var entry in headers)
+                SetHeader(entry.Key, entry.Value);
         }
 
         public bool TryGetContext<T>(out IBusPublishContext<T> context)
