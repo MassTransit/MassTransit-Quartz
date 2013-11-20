@@ -101,14 +101,14 @@ end
 
 desc "Runs unit tests"
 nunit :tests35 => [:build35] do |nunit|
-          nunit.command = File.join('src', 'packages','NUnit.Runners.2.6.2', 'tools', 'nunit-console.exe')
+          nunit.command = File.join('src', 'packages','NUnit.Runners.2.6.3', 'tools', 'nunit-console.exe')
           nunit.options = "/framework=#{CLR_TOOLS_VERSION}", '/nothread', '/nologo', '/labels', "\"/xml=#{File.join(props[:artifacts], 'nunit-test-results-net-3.5.xml')}\""
           nunit.assemblies = FileList[File.join(props[:src], "MassTransit.QuartzIntegration.Tests/bin/Release", "MassTransit.QuartzIntegration.Tests.dll")]
 end
 
 desc "Runs unit tests"
 nunit :tests4 => [:build4] do |nunit|
-          nunit.command = File.join('src', 'packages','NUnit.Runners.2.6.2', 'tools', 'nunit-console.exe')
+          nunit.command = File.join('src', 'packages','NUnit.Runners.2.6.3', 'tools', 'nunit-console.exe')
           nunit.options = "/framework=#{CLR_TOOLS_VERSION}", '/nothread', '/nologo', '/labels', "\"/xml=#{File.join(props[:artifacts], 'nunit-test-results-net-4.0.xml')}\""
           nunit.assemblies = FileList[File.join(props[:src], "MassTransit.QuartzIntegration.Tests/bin/Release", "MassTransit.QuartzIntegration.Tests.dll")]
 end
