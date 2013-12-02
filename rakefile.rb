@@ -172,7 +172,7 @@ nuspec :create_nuspec do |nuspec|
   nuspec.dependency "MassTransit.Scheduling", NUGET_VERSION
   nuspec.dependency "Common.Logging", "2.1.2"
   nuspec.dependency "Newtonsoft.Json", "5.0.8"
-  nuspec.dependency "Quartz", "2.2"
+  nuspec.dependency "Quartz", "2.2.1"
   nuspec.output_file = File.join(props[:artifacts], 'MassTransit.QuartzIntegration.nuspec')
   add_files File.join(props[:output], 'Integration'), 'MassTransit.QuartzIntegration.{dll,pdb,xml}', nuspec
   nuspec.file(File.join(props[:src], "MassTransit.QuartzIntegration\\**\\*.cs").gsub("/","\\"), "src")
