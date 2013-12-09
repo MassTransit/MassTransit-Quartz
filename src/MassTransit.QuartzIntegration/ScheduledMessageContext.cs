@@ -32,6 +32,11 @@ namespace MassTransit.QuartzIntegration
             DeclaringMessageType = typeof(ScheduledMessageContext);
         }
 
+        public void SetDeliveryMode(DeliveryMode deliveryMode)
+        {
+            DeliveryMode = deliveryMode;
+        }
+
         public void SerializeTo(Stream stream)
         {
             using (var nonClosingStream = new NonClosingStream(stream))
@@ -60,5 +65,6 @@ namespace MassTransit.QuartzIntegration
 
         public Guid Id { get; private set; }
         public Type DeclaringMessageType { get; private set; }
+        public DeliveryMode DeliveryMode { get; private set; }
     }
 }
