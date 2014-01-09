@@ -122,12 +122,12 @@ zip :zip_output => [:versioning] do |zip|
 	zip.output_path = props[:artifacts]
 end
 
-desc "Restore NuGet Packages"
-task :nuget_restore do
-  sh "#{props[:nuget]} install #{File.join(props[:src],"MassTransit.QuartzService","packages.config")} -Source https://nuget.org/api/v2/ -o #{File.join(props[:src],"packages")}"
-  sh "#{props[:nuget]} install #{File.join(props[:src],"MassTransit.QuartzIntegration","packages.config")} -Source https://nuget.org/api/v2/ -o #{File.join(props[:src],"packages")}"
-  sh "#{props[:nuget]} install #{File.join(props[:src],"MassTransit.QuartzIntegration.Tests","packages.config")} -Source https://nuget.org/api/v2/ -o #{File.join(props[:src],"packages")}"
-  sh "#{props[:nuget]} install #{File.join(props[:src],"MassTransit.Scheduling","packages.config")} -Source https://nuget.org/api/v2/ -o #{File.join(props[:src],"packages")}"
+desc "restores missing packages"
+msbuild :nuget_restore do |msb|
+  msb.properties :SolutionDir => "../"
+  msb.use :net4
+  msb.targets :RestorePackages
+  msb.solution = File.join(props[:src], "MassTransit.Scheduling", "MassTransit.Scheduling.csproj")
 end
 
 desc "Builds the nuget package"
