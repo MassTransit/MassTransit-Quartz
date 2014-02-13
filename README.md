@@ -3,6 +3,13 @@ MassTransit-Quartz
 
 Quartz support for MassTransit
 
+Building
+--------
+_must have rake and ruby installed_
+
+`bundle install`
+`bundle exec rake`
+
 Possible API
 ==============
 

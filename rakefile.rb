@@ -1,3 +1,5 @@
+require 'bundler/setup'
+
 COPYRIGHT = "Copyright 2012-2013 Chris Patterson, Albert Hives."
 
 require File.dirname(__FILE__) + "/build_support/BuildUtils.rb"
