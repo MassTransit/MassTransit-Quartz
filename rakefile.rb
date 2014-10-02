@@ -129,7 +129,7 @@ nuspec :create_nuspec do |nuspec|
   nuspec.license_url = "http://www.apache.org/licenses/LICENSE-2.0"
   nuspec.require_license_acceptance
   nuspec.dependency "Magnum", "2.1.3"
-  nuspec.dependency "MassTransit", "2.9.7"
+  nuspec.dependency "MassTransit", "2.9.8"
   nuspec.output_file = File.join(props[:artifacts], 'MassTransit.Scheduling.nuspec')
   add_files File.join(props[:output], 'Scheduling'), 'MassTransit.Scheduling.{dll,pdb,xml}', nuspec
   nuspec.file(File.join(props[:src], "MassTransit.Scheduling\\**\\*.cs").gsub("/","\\"), "src")
@@ -148,7 +148,7 @@ nuspec :create_nuspec do |nuspec|
   nuspec.license_url = "http://www.apache.org/licenses/LICENSE-2.0"
   nuspec.require_license_acceptance
   nuspec.dependency "Magnum", "2.1.3"
-  nuspec.dependency "MassTransit", "2.9.7"
+  nuspec.dependency "MassTransit", "2.9.8"
   nuspec.dependency "MassTransit.Scheduling", NUGET_VERSION
   nuspec.dependency "Common.Logging", "2.2.0"
   nuspec.dependency "Common.Logging.Core", "2.2.0"
