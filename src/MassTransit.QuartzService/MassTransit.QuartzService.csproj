@@ -104,7 +104,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Quartz">
-      <HintPath>..\packages\Quartz.2.3.0\lib\net40\Quartz.dll</HintPath>
+      <HintPath>..\packages\Quartz.2.3\lib\net40\Quartz.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="RabbitMQ.Client">
