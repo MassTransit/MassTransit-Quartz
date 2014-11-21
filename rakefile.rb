@@ -98,8 +98,9 @@ task :package => [:nuget, :zip_output]
 
 desc "ZIPs up the build results."
 zip :zip_output => [:versioning] do |zip|
-  zip.dirs = [props[:output]]
-  zip.output_path = File.join(props[:artifacts], "MassTransit.Quartz-#{NUGET_VERSION}.zip")
+  zip.directories_to_zip = [props[:output]]
+  zip.output_file = "MassTransit-Quartz-#{NUGET_VERSION}.zip"
+  zip.output_path = props[:artifacts]
 end
 
 desc "restores missing packages"
@@ -119,15 +120,15 @@ end
 nuspec :create_nuspec do |nuspec|
   nuspec.id = 'MassTransit.Scheduling'
   nuspec.version = NUGET_VERSION
-  nuspec.authors = ['Chris Patterson', 'Albert Hives']
+  nuspec.authors = 'Chris Patterson, Albert Hives'
   nuspec.summary = 'Scheduled messaging for MassTransit'
   nuspec.description = 'MassTransit Scheduling is used to schedule future message delivery'
   nuspec.title = 'MassTransit.Scheduling'
-  nuspec.project_url = 'http://github.com/MassTransit/MassTransit-Quartz'
-  nuspec.icon_url = 'http://MassTransit-project.com/wp-content/themes/pandora/slide.1.png'
+  nuspec.projectUrl = 'http://github.com/MassTransit/MassTransit-Quartz'
+  nuspec.iconUrl = 'http://MassTransit-project.com/wp-content/themes/pandora/slide.1.png'
   nuspec.language = "en-US"
-  nuspec.license_url = "http://www.apache.org/licenses/LICENSE-2.0"
-  nuspec.require_license_acceptance
+  nuspec.licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0"
+  nuspec.requireLicenseAcceptance = "false"
   nuspec.dependency "Magnum", "2.1.3"
   nuspec.dependency "MassTransit", "2.9.9"
   nuspec.output_file = File.join(props[:artifacts], 'MassTransit.Scheduling.nuspec')
@@ -138,15 +139,15 @@ end
 nuspec :create_nuspec do |nuspec|
   nuspec.id = 'MassTransit.QuartzIntegration'
   nuspec.version = NUGET_VERSION
-  nuspec.authors = ['Chris Patterson', 'Albert Hives']
+  nuspec.authors = 'Chris Patterson, Albert Hives'
   nuspec.summary = 'Quartz integration for MassTransit'
   nuspec.description = 'Adds support for Quartz as a message scheduler to MassTransit (used by the MassTransit.QuartzService project)'
   nuspec.title = 'MassTransit.QuartzIntegration'
-  nuspec.project_url = 'http://github.com/MassTransit/MassTransit-Quartz'
-  nuspec.icon_url = 'http://MassTransit-project.com/wp-content/themes/pandora/slide.1.png'
+  nuspec.projectUrl = 'http://github.com/MassTransit/MassTransit-Quartz'
+  nuspec.iconUrl = 'http://MassTransit-project.com/wp-content/themes/pandora/slide.1.png'
   nuspec.language = "en-US"
-  nuspec.license_url = "http://www.apache.org/licenses/LICENSE-2.0"
-  nuspec.require_license_acceptance
+  nuspec.licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0"
+  nuspec.requireLicenseAcceptance = "false"
   nuspec.dependency "Magnum", "2.1.3"
   nuspec.dependency "MassTransit", "2.9.9"
   nuspec.dependency "MassTransit.Scheduling", NUGET_VERSION
