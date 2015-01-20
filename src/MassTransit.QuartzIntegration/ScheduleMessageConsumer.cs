@@ -84,6 +84,7 @@ namespace MassTransit.QuartzIntegration
             ITrigger trigger = TriggerBuilder.Create()
                 .ForJob(jobDetail)
                 .StartAt(context.Message.ScheduledTime)
+                .WithSchedule(SimpleScheduleBuilder.Create().WithMisfireHandlingInstructionFireNow())
                 .WithIdentity(new TriggerKey(context.Message.CorrelationId.ToString("N")))
                 .Build();
 

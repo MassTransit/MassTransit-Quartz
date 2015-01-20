@@ -95,9 +95,9 @@
       <HintPath>..\packages\MassTransit.MSMQ.2.9.9\lib\net40\MassTransit.Transports.MSMQ.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="MassTransit.Transports.RabbitMq">
+    <Reference Include="MassTransit.Transports.RabbitMq, Version=2.9.0.0, Culture=neutral, PublicKeyToken=b8e0e9f2f1e657fa, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\MassTransit.RabbitMQ.2.9.9\lib\net40\MassTransit.Transports.RabbitMq.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\net40\Newtonsoft.Json.dll</HintPath>
@@ -107,9 +107,9 @@
       <HintPath>..\packages\Quartz.2.3\lib\net40\Quartz.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="RabbitMQ.Client">
-      <HintPath>..\packages\RabbitMQ.Client.3.4.0\lib\net30\RabbitMQ.Client.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="RabbitMQ.Client, Version=3.4.0.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\RabbitMQ.Client.3.4.0\lib\net35\RabbitMQ.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />

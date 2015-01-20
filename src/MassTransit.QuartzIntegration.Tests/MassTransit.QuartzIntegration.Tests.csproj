@@ -57,6 +57,9 @@
       <HintPath>..\packages\MassTransit.Log4Net.2.9.9\lib\net40\MassTransit.Log4NetIntegration.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="MassTransit.Transports.RabbitMq">
+      <HintPath>..\packages\MassTransit.RabbitMQ.2.9.9\lib\net40\MassTransit.Transports.RabbitMq.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\net40\Newtonsoft.Json.dll</HintPath>
@@ -68,6 +71,9 @@
     <Reference Include="Quartz">
       <HintPath>..\packages\Quartz.2.3\lib\net40\Quartz.dll</HintPath>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="RabbitMQ.Client">
+      <HintPath>..\packages\RabbitMQ.Client.3.4.0\lib\net35\RabbitMQ.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
