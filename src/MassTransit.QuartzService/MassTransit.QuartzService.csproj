@@ -68,12 +68,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Logging">
-      <HintPath>..\packages\Common.Logging.2.3.1\lib\net40\Common.Logging.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\Common.Logging.3.0.0\lib\net40\Common.Logging.dll</HintPath>
     </Reference>
-    <Reference Include="Common.Logging.Log4Net1211">
-      <HintPath>..\packages\Common.Logging.Log4Net1211.2.3.1\lib\net40\Common.Logging.Log4Net1211.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Common.Logging.Core">
+      <HintPath>..\packages\Common.Logging.Core.3.0.0\lib\net40\Common.Logging.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Common.Logging.Log4Net1211, Version=3.0.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Common.Logging.Log4Net1211.3.0.0\lib\net40\Common.Logging.Log4Net1211.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -84,32 +86,26 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="MassTransit">
-      <HintPath>..\packages\MassTransit.2.9.9\lib\net40\MassTransit.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\MassTransit.2.10.0\lib\net40\MassTransit.dll</HintPath>
     </Reference>
     <Reference Include="MassTransit.Log4NetIntegration">
-      <HintPath>..\packages\MassTransit.Log4Net.2.9.9\lib\net40\MassTransit.Log4NetIntegration.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\MassTransit.Log4Net.2.10.0\lib\net40\MassTransit.Log4NetIntegration.dll</HintPath>
     </Reference>
     <Reference Include="MassTransit.Transports.MSMQ">
-      <HintPath>..\packages\MassTransit.MSMQ.2.9.9\lib\net40\MassTransit.Transports.MSMQ.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\MassTransit.MSMQ.2.10.0\lib\net40\MassTransit.Transports.MSMQ.dll</HintPath>
     </Reference>
-    <Reference Include="MassTransit.Transports.RabbitMq, Version=2.9.0.0, Culture=neutral, PublicKeyToken=b8e0e9f2f1e657fa, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MassTransit.RabbitMQ.2.9.9\lib\net40\MassTransit.Transports.RabbitMq.dll</HintPath>
+    <Reference Include="MassTransit.Transports.RabbitMq">
+      <HintPath>..\packages\MassTransit.RabbitMQ.2.10.0\lib\net40\MassTransit.Transports.RabbitMq.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\net40\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Quartz">
-      <HintPath>..\packages\Quartz.2.3\lib\net40\Quartz.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\Quartz.2.3.2\lib\net40\Quartz.dll</HintPath>
     </Reference>
-    <Reference Include="RabbitMQ.Client, Version=3.4.0.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\RabbitMQ.Client.3.4.0\lib\net35\RabbitMQ.Client.dll</HintPath>
+    <Reference Include="RabbitMQ.Client">
+      <HintPath>..\packages\RabbitMQ.Client.3.4.3\lib\net35\RabbitMQ.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -117,12 +113,10 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="Topshelf">
-      <HintPath>..\packages\Topshelf.3.1.4\lib\net40-full\Topshelf.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\Topshelf.3.2.0\lib\net40-full\Topshelf.dll</HintPath>
     </Reference>
     <Reference Include="Topshelf.Log4Net">
-      <HintPath>..\packages\Topshelf.Log4Net.3.1.4\lib\net40-full\Topshelf.Log4Net.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\Topshelf.Log4Net.3.2.0\lib\net40-full\Topshelf.Log4Net.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

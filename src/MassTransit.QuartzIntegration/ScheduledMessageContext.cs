@@ -32,6 +32,10 @@ namespace MassTransit.QuartzIntegration
             DeclaringMessageType = typeof(ScheduledMessageContext);
         }
 
+        public void SetWaitForAck(bool wait = true)
+        {            
+        }
+
         public void SetDeliveryMode(DeliveryMode deliveryMode)
         {
             DeliveryMode = deliveryMode;
@@ -66,5 +70,10 @@ namespace MassTransit.QuartzIntegration
         public Guid Id { get; private set; }
         public Type DeclaringMessageType { get; private set; }
         public DeliveryMode DeliveryMode { get; private set; }
+
+        public bool WaitForAck
+        {
+            get { return true; }
+        }
     }
 }

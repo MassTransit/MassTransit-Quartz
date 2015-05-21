@@ -27,7 +27,7 @@ desc "**Default**, compiles and runs tests"
 task :default => [:clean, :nuget_restore, :compile, :package]
 
 desc "Update the common version information for the build. You can call this task without building."
-assemblyinfo :global_version do |asm|
+assemblyinfo :global_version => [:versioning] do |asm|
   # Assembly file config
   asm.product_name = PRODUCT
   asm.description = "MassTransit-Quartz provides message scheduling for MassTransit services."
@@ -130,7 +130,7 @@ nuspec :create_nuspec do |nuspec|
   nuspec.licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0"
   nuspec.requireLicenseAcceptance = "false"
   nuspec.dependency "Magnum", "2.1.3"
-  nuspec.dependency "MassTransit", "2.9.9"
+  nuspec.dependency "MassTransit", "2.10.0"
   nuspec.output_file = File.join(props[:artifacts], 'MassTransit.Scheduling.nuspec')
   add_files File.join(props[:output], 'Scheduling'), 'MassTransit.Scheduling.{dll,pdb,xml}', nuspec
   nuspec.file(File.join(props[:src], "MassTransit.Scheduling\\**\\*.cs").gsub("/","\\"), "src")
@@ -149,11 +149,11 @@ nuspec :create_nuspec do |nuspec|
   nuspec.licenseUrl = "http://www.apache.org/licenses/LICENSE-2.0"
   nuspec.requireLicenseAcceptance = "false"
   nuspec.dependency "Magnum", "2.1.3"
-  nuspec.dependency "MassTransit", "2.9.9"
+  nuspec.dependency "MassTransit", "2.10.0"
   nuspec.dependency "MassTransit.Scheduling", NUGET_VERSION
-  nuspec.dependency "Common.Logging", "2.3.1"
+  nuspec.dependency "Common.Logging", "3.0.0"
   nuspec.dependency "Newtonsoft.Json", "6.0.6"
-  nuspec.dependency "Quartz", "2.3.0"
+  nuspec.dependency "Quartz", "2.3.2"
   nuspec.output_file = File.join(props[:artifacts], 'MassTransit.QuartzIntegration.nuspec')
   add_files File.join(props[:output], 'Integration'), 'MassTransit.QuartzIntegration.{dll,pdb,xml}', nuspec
   nuspec.file(File.join(props[:src], "MassTransit.QuartzIntegration\\**\\*.cs").gsub("/","\\"), "src")
