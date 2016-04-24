@@ -43,8 +43,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Magnum.2.1.3\lib\NET40\Magnum.dll</HintPath>
     </Reference>
-    <Reference Include="MassTransit">
-      <HintPath>..\packages\MassTransit.2.10.1\lib\net40\MassTransit.dll</HintPath>
+    <Reference Include="MassTransit, Version=2.10.0.0, Culture=neutral, PublicKeyToken=b8e0e9f2f1e657fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\MassTransit.2.10.2\lib\net40\MassTransit.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
